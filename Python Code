@@ -1,0 +1,51 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+df_cc = pd.read_csv("Credit Card Data.csv")
+print(df_cc.shape)
+print(df_cc.head())
+
+# Fraud rate when PIN is used vs not used
+plt.figure(figsize=(8,5))
+pin_fraud = df_cc.groupby('used_pin_number')['fraud'].mean() * 100
+colors_pin = ['#e74c3c', '#2ecc71']
+plt.bar(['No PIN', 'PIN Used'], pin_fraud.values, color=colors_pin, edgecolor='black', linewidth=1.5)
+plt.title('Fraud Rate: With vs Without PIN', fontsize=14, fontweight='bold')
+plt.ylabel('Fraud Rate (%)', fontsize=12)
+for i, v in enumerate(pin_fraud.values):
+    plt.text(i, v + 0.3, str(round(v,2)) + '%', ha='center', fontsize=11, fontweight='bold')
+plt.ylim(0, max(pin_fraud.values) * 1.2)
+plt.show()
+
+
+# Fraud rate for online vs in-person
+plt.figure(figsize=(8,5))
+online_fraud = df_cc.groupby('online_order')['fraud'].mean() * 100
+colors_online = ['#3498db', '#e67e22']
+plt.bar(['In-Person', 'Online'], online_fraud.values, color=colors_online, edgecolor='black', linewidth=1.5)
+plt.title('Fraud Rate: In-Person vs Online Transactions', fontsize=14, fontweight='bold')
+plt.ylabel('Fraud Rate (%)', fontsize=12)
+for i, v in enumerate(online_fraud.values):
+    plt.text(i, v + 0.2, str(round(v,2)) + '%', ha='center', fontsize=11, fontweight='bold')
+plt.ylim(0, max(online_fraud.values) * 1.2)
+plt.show()
+
+
+
+# Purchase amount ratio - fraud vs legitimate
+plt.figure(figsize=(9,5))
+fraud_ratio = df_cc[df_cc['fraud']==1]['ratio_to_median_purchase_price']
+legit_ratio = df_cc[df_cc['fraud']==0]['ratio_to_median_purchase_price']
+data_ratio = [legit_ratio, fraud_ratio]
+bp2 = plt.boxplot(data_ratio, labels=['Legitimate', 'Fraud'], patch_artist=True, widths=0.5)
+bp2['boxes'][0].set_facecolor('#2ecc71')
+bp2['boxes'][1].set_facecolor('#e74c3c')
+for box in bp2['boxes']:
+    box.set_edgecolor('black')
+    box.set_linewidth(1.5)
+plt.title('Purchase Amount Ratio: Legitimate vs Fraud', fontsize=14, fontweight='bold')
+plt.ylabel('Ratio to Median Purchase Price', fontsize=12)
+plt.grid(axis='y', alpha=0.3)
+plt.show()
